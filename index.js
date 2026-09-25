@@ -16,10 +16,11 @@ app.post("/api/sentiment", (req, res) => {
     if (typeof tweet !== 'string' || tweet.trim() === '') {
       return res.status(400).json({ error: 'tweet is required' })
     }
-    console.log({"tweet":tweet,"sentiment":isPositive()})
+    const sentiment=isPositive()
+    console.log({"tweet":tweet,"sentiment":sentiment})
     res.json({
       tweet,
-      sentiment: isPositive(),
+      sentiment: sentiment,
     })
   },2_000)
 })
