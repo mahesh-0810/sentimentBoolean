@@ -22,7 +22,7 @@ app.post("/api/sentiment", (req, res) => {
       tweet,
       sentiment: sentiment,
     })
-  },2_000)
+  },30_000)
 })
 
 app.listen(PORT, () => {
