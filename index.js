@@ -12,17 +12,16 @@ app.use(express.json())
 
 app.post("/api/sentiment", (req, res) => {
   const { tweet } = req.body
-
   setTimeout(() => {
     if (typeof tweet !== 'string' || tweet.trim() === '') {
       return res.status(400).json({ error: 'tweet is required' })
     }
-
+    console.log({"tweet":tweet,"sentiment":isPositive()})
     res.json({
       tweet,
       sentiment: isPositive(),
     })
-  },5_000)
+  },2_000)
 })
 
 app.listen(PORT, () => {
