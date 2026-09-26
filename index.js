@@ -17,9 +17,11 @@ app.post("/api/sentiment", (req, res) => {
 
   setTimeout(() => {
     if (typeof tweet !== 'string' || tweet.trim() === '') {
+      console.log("Tweet Required")
       return res.status(400).json({ error: 'tweet is required' })
     }
     if (Math.random() < 0.1) {
+      console.log("Tweet Error")
       return res.status(500).json({ error: 'sentiment analysis failed' })
     }
     const sentiment=isPositive()
