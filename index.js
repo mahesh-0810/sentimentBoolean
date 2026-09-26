@@ -10,17 +10,19 @@ function isPositive() {
 
 app.use(express.json())
 
+let requestCount = 0
+
 app.post("/api/sentiment", (req, res) => {
   const { tweet } = req.body
 
-  
+  const shouldFail = (requestCount++ % 10) < 8
 
   setTimeout(() => {
     if (typeof tweet !== 'string' || tweet.trim() === '') {
       console.log("Tweet Required")
       return res.status(400).json({ error: 'tweet is required' })
     }
-    if (Math.random() < 0.1) {
+    if (shouldFail) {
       console.log("Tweet Error")
       return res.status(500).json({ error: 'sentiment analysis failed' })
     }
@@ -30,7 +32,7 @@ app.post("/api/sentiment", (req, res) => {
       tweet,
       sentiment: sentiment,
     })
-  },5_000)
+  },30_000)
 })
 
 app.listen(PORT, () => {
