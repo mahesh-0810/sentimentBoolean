@@ -1,35 +1,50 @@
+import 'dotenv/config'
 import express from 'express'
+import OpenAI from 'openai'
 
 const app = express()
 const PORT = process.env.PORT || 3001
 
-function isPositive() {
-  // Fake sentiment for demo purposes: random true/false.
-  return Math.random() >= 0.5
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+
+async function analyzeSentiment(tweet) {
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    temperature: 0,
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You classify the sentiment of tweets. Reply with exactly one word: "positive", "negative", or "neutral". No punctuation, no explanation.',
+      },
+      { role: 'user', content: tweet },
+    ],
+  })
+
+  const label = response.choices[0].message.content.trim().toLowerCase()
+  if (!['positive', 'negative', 'neutral'].includes(label)) {
+    throw new Error(`Unexpected sentiment label from model: "${label}"`)
+  }
+  return label
 }
 
 app.use(express.json())
 
-app.post("/api/sentiment", (req, res) => {
+app.post('/api/sentiment', async (req, res) => {
   const { tweet } = req.body
 
-  
+  if (typeof tweet !== 'string' || tweet.trim() === '') {
+    return res.status(400).json({ error: 'tweet is required' })
+  }
 
-  setTimeout(() => {
-    if (typeof tweet !== 'string' || tweet.trim() === '') {
-      return res.status(400).json({ error: 'tweet is required' })
-    }
-    if (Math.random() < 0.1) {
-      console.log("Error")
-      return res.status(500).json({ error: 'sentiment analysis failed' })
-    }
-    const sentiment=isPositive()
-    console.log({"tweet":tweet,"sentiment":sentiment})
-    res.json({
-      tweet,
-      sentiment: sentiment,
-    })
-  },30_000)
+  try {
+    const sentiment = await analyzeSentiment(tweet)
+    console.log({ tweet, sentiment })
+    res.json({ tweet, sentiment })
+  } catch (err) {
+    console.error('Error analyzing sentiment:', err.message)
+    res.status(500).json({ error: 'sentiment analysis failed' })
+  }
 })
 
 app.listen(PORT, () => {
